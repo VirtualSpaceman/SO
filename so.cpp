@@ -5,18 +5,81 @@ Matrícula: 1332330
 
 */
 #include <bits/stdc++.h>
-#include "tree2.h"
 
 using namespace std;
 
+struct treeNode
+{
+    string name;
+    vector <treeNode> vec;
+};
 
 
-treeNode* insertTree(treeNode *head, string gram,int depth)
+
+template<typename Out>
+void split(const string &s, char delim, Out result)
+{
+    stringstream ss;
+    ss.str(s);
+    string item;
+    while (getline(ss, item, delim)) {
+        *(result++) = item;
+    }
+}
+
+vector<string> split(const string &s, char delim)
+{
+    vector<string> elems;
+    split(s, delim, back_inserter(elems));
+    return elems;
+}
+
+treeNode* searchNode(treeNode *no, string name)
+{
+
+    for(unsigned int i = 0; i < no->vec.size(); i++){
+        if(no->vec[i].name == name)
+            return &no->vec[i];
+    }
+    return new treeNode;
+}
+
+bool searchTree(treeNode *head, string gram)
+{
+
+    treeNode *n = head;//new treeNode;
+    vector <string> aux = split(gram, ' ');
+    //n->vec.push_back(*head);
+
+    int depth = aux.size();
+    int cont = 1;
+
+    while(cont != depth){
+       n = searchNode(n, aux[cont]);
+       if(n->name == "")
+            return false;
+
+        cont++;
+    }
+
+    aux.clear();
+    return true;
+}
+
+treeNode init(string name){
+
+    treeNode aux;
+    aux.name = name;
+    return aux;
+}
+
+
+void insertTree(treeNode *head, string gram,int depth)
 {
 
     if(depth == 1 and gram != head->name){
         head->name = gram;
-        return head;
+        return;
     }
     else{
         treeNode *aux = head;
@@ -35,72 +98,15 @@ treeNode* insertTree(treeNode *head, string gram,int depth)
             i++;
             depth--;
         }
-        return head;
     }
 
 }
 
-bool searchTree(treeNode *head, string gram)
-{
-
-    treeNode *n = new treeNode;
-    vector <string> aux = split(gram, ' ');
-    n->vec.push_back(*head);
-
-    int depth = aux.size();
-    int cont = 0;
-
-    while(cont != depth){
-       n = searchNode(n, aux[cont]);
-       if(n->name == "")
-            return false;
-
-        cont++;
-    }
-
-    aux.clear();
-    return true;
-}
 
 void inVec(vector <treeNode> &vec, string nam)
 {
 
     vec.push_back(init(nam));
-}
-
-vector<string> split(const string &s, char delim)
-{
-    vector<string> elems;
-    split(s, delim, back_inserter(elems));
-    return elems;
-}
-
-template<typename Out>
-void split(const string &s, char delim, Out result)
-{
-    stringstream ss;
-    ss.str(s);
-    string item;
-    while (getline(ss, item, delim)) {
-        *(result++) = item;
-    }
-}
-
-treeNode init(string name){
-
-    treeNode aux;
-    aux.name = name;
-    return aux;
-}
-
-treeNode* searchNode(treeNode *no, string name)
-{
-
-    for(unsigned int i = 0; i < no->vec.size(); i++){
-        if(no->vec[i].name == name)
-            return &no->vec[i];
-    }
-    return new treeNode;
 }
 
 void showVal(treeNode *head){
@@ -129,7 +135,7 @@ vector<treeNode*> build_root(vector<string> vec){
 
 treeNode* find_root(vector<treeNode*> roots, string gram){
     string aux = gram.substr(0, gram.find(" "));
-    for(int i = 0; i < roots.size(); i++){
+    for(unsigned int i = 0; i < roots.size(); i++){
       if(roots[i]->name == aux)
         return roots[i];
     }
@@ -196,6 +202,7 @@ void get_n_gram(int n_gram){
   }
 
   roots = build_root(syscall_vector);
+  //return;
 
   for (int j = 2; j <= n_gram; j++){
 
@@ -211,7 +218,7 @@ void get_n_gram(int n_gram){
       if(mp[gram] == 0){ //Verificação para evitar que n-grams repetidas sejam escritas no arquivo
         mp[gram] = cont;
         cont++;
-        cout << "Gram de tamanho " << j << "(" << cont-1 << ") " <<  ": " <<gram << endl;
+        //cout << "Gram de tamanho " << j << "(" << cont-1 << ") " <<  ": " <<gram << endl;
         //treeNode *q = find_root(roots, gram);
         insertTree(find_root(roots, gram), gram, j);
         //outfile << gram << endl; //Escreve no arquivo as subsequencias não repetidas
@@ -222,7 +229,12 @@ void get_n_gram(int n_gram){
     mp.clear();
   }
   //Fecha os arquivos abertos para leituras e escritas.
-  showVal(roots[2]);
+
+  if(searchTree(find_root(roots, "execve brk access mmap access open fstat mmap close access"), "execve brk access mmap access open fstat mmap close access")){
+    cout << "aaaaaaaaaaaaaaaaa" << endl;
+   }
+    showVal(roots[0]);
+
   syscall_vector.clear();
   arquivo.close();
   outfile.close();
